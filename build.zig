@@ -1,5 +1,6 @@
 const std = @import("std");
 const Builder = std.build.Builder;
+const deps = @import("./deps.zig");
 
 pub fn build(b: *Builder) void {
     const target = b.standardTargetOptions(.{});
@@ -9,12 +10,7 @@ pub fn build(b: *Builder) void {
     const exe = b.addExecutable("zig-sqlite3", "src/main.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
-
-    exe.linkLibC();
-    // C source code as an amalgamation, version 3.33.0.
-    exe.addCSourceFile("./src/sqlite3.c", &[_][]const u8{});
-    exe.addIncludeDir("./include");
-
+    deps.addAllTo(exe);
     exe.install();
 
     const run_cmd = exe.run();
