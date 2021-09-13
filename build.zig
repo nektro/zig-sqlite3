@@ -1,8 +1,7 @@
 const std = @import("std");
-const Builder = std.build.Builder;
 const deps = @import("./deps.zig");
 
-pub fn build(b: *Builder) void {
+pub fn build(b: *std.build.Builder) void {
     const target = b.standardTargetOptions(.{});
 
     const mode = b.standardReleaseOptions();
