@@ -8,4 +8,4 @@
 
 sqlite3 wrapper for Zig.
 
-Contains sqlite 3.39.0
+Contains sqlite 3.40.0
