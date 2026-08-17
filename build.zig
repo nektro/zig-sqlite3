@@ -1,23 +1,26 @@
 const std = @import("std");
 const deps = @import("./deps.zig");
 
-pub fn build(b: *std.build.Builder) void {
+pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
+    const mode = b.option(std.builtin.OptimizeMode, "mode", "") orelse .Debug;
+    const disable_llvm = b.option(bool, "disable_llvm", "use the non-llvm zig codegen") orelse false;
 
-    const mode = b.standardReleaseOptions();
+    const tests = b.addTest(.{
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("test.zig"),
+            .target = target,
+            .optimize = mode,
+        }),
+    });
+    deps.addAllTo(tests);
+    tests.use_llvm = !disable_llvm;
+    tests.use_lld = !disable_llvm;
+    b.getInstallStep().dependOn(&tests.step);
 
-    const exe = b.addExecutable("zig-sqlite3", "src/main.zig");
-    exe.setTarget(target);
-    exe.setBuildMode(mode);
-    deps.addAllTo(exe);
-    exe.install();
-
-    const run_cmd = exe.run();
-    run_cmd.step.dependOn(b.getInstallStep());
-    if (b.args) |args| {
-        run_cmd.addArgs(args);
-    }
-
-    const run_step = b.step("run", "Run the app");
-    run_step.dependOn(&run_cmd.step);
+    const test_step = b.step("test", "Run all library tests");
+    const tests_run = b.addRunArtifact(tests);
+    tests_run.setCwd(b.path("."));
+    tests_run.has_side_effects = true;
+    test_step.dependOn(&tests_run.step);
 }

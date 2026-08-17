@@ -1,0 +1,4 @@
+blessing:
+= https://spdx.org/licenses/blessing
+- This
+- http https://www.sqlite.org/2022/sqlite-amalgamation-3380000.zip
